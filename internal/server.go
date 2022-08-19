@@ -161,6 +161,42 @@ func (*server) GetProduct(ctx context.Context, req *productProto.GetProductReque
 	}, nil
 }
 
+func (*server) GetProducts(ctx context.Context, req *productProto.GetProductsRequest) (*productProto.GetProductsResponse, error) {
+	fmt.Println("Get all products")
+	// create empty struct
+	filter := bson.D{{}}
+
+	curs, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		log.Printf("Error while getting records: %v", err)
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("internal error"),
+		)
+	}
+	//Close the cursor once finished
+	defer curs.Close(context.Background())
+	var results []*productProto.Product
+	for curs.Next(context.Background()) {
+		//Create a value into which the single document can be decoded
+		var elem Product
+		err := curs.Decode(&elem)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		results = append(results, productToProto(&elem))
+
+	}
+
+	if err := curs.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return &productProto.GetProductsResponse{
+		Values: results,
+	}, nil
+}
 
 func productToProto(data *Product) *productProto.Product {
 	v := &productProto.Product{
