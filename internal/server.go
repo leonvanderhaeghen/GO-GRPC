@@ -226,6 +226,26 @@ func (*server) UpdateProduct(ctx context.Context, req *productProto.UpdateProduc
 	}, nil
 }
 
+func (*server) DeleteProduct(ctx context.Context, req *productProto.DeleteProductRequest) (*productProto.DeleteProductResponse, error) {
+	fmt.Println("Delete product request")
+
+	filter := bson.M{"_id": req.GetId()}
+
+	res, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Sprintf("something went wrong with deleting product %v", req.GetId()))
+	}
+
+	if res.DeletedCount == 0 {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("product %v not found", req.GetId()))
+	}
+
+	return &productProto.DeleteProductResponse{
+		Id: req.GetId(),
+	}, nil
+
+}
+
 
 func productToProto(data *Product) *productProto.Product {
 	v := &productProto.Product{
