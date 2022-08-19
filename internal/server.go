@@ -127,12 +127,49 @@ func (*server) CreateProduct(ctx context.Context, req *productProto.CreateProduc
 	}*/
 
 	return &productProto.CreateProductResponse{
-		Values: &productProto.Product{
-			Id:	value.GetId(),
-			Name: value.GetName(),
-			Price: value.GetPrice(),
-			Tags: value.GetTags(),
-			Barcode: value.GetBarcode(),
-		},
+		Values: productToProto(&data),
 	}, nil
+}
+
+
+func (*server) GetProduct(ctx context.Context, req *productProto.GetProductRequest) (*productProto.GetProductResponse, error) {
+	fmt.Println("Read product request")
+	productId := req.GetId()
+	/*oid, err := primitive.ObjectIDFromHex(blogID)
+	if err != nil {
+		log.Printf("Error while parsing the blog ID: %v", err)
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			fmt.Sprintf("Cannot parse ID"),
+		)
+	}*/
+
+	// create empty struct
+	data := &Product{}
+	filter := bson.M{"_id": productId}
+
+	res := collection.FindOne(ctx, filter)
+	if err := res.Decode(data); err != nil {
+		return nil, status.Errorf(
+			codes.NotFound,
+			fmt.Sprintf("Cannot Find product item : %v", err),
+		)
+	}
+
+	return &productProto.GetProductResponse{
+		Values: productToProto(&data),
+	}, nil
+}
+
+
+func productToProto(data *Product) *productProto.Product {
+	v := &productProto.Product{
+		Id:      data.Id,
+		Name:    data.Name,
+		Price:   data.Price,
+		Tags:    data.Tags,
+		Barcode: data.Barcode,
+	}
+
+	return v
 }
