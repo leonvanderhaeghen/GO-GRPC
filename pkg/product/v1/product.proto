@@ -1,0 +1,56 @@
+syntax = "proto3";
+package product.v1;
+import "google/protobuf/timestamp.proto";
+option go_package = "github.com/leonvanderhaeghen/go-grpc/product/pkg/product";
+
+message Product{
+  string id = 1;
+  string name = 2;
+  float price = 3;
+  string tags = 4;
+  string barcode = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message CreateProductRequest {
+    Product values = 1;
+}
+message CreateProductResponse {
+    Product values = 1;
+}
+message GetProductRequest {
+  string id = 1;
+}
+
+message GetProductResponse {
+  Product values = 1;
+}
+message GetProductsRequest {}
+
+message GetProductsResponse {
+  repeated Product values = 1;
+}
+
+
+message UpdateProductRequest {
+    Product values = 1;
+}
+
+message UpdateProductResponse {
+    Product values = 1;
+}
+
+message DeleteProductRequest {
+    string id = 1;
+}
+
+message DeleteProductResponse {
+    string id = 1;
+}
+service ProductConfigFetchService {
+  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc CreateProduct (CreateProductRequest) returns (CreateProductResponse);
+  rpc UpdateProduct (UpdateProductRequest) returns (UpdateProductResponse);
+  rpc DeleteProduct (DeleteProductRequest) returns (DeleteProductResponse);
+}
