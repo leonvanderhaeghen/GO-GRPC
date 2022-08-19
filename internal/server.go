@@ -44,7 +44,7 @@ func main() {
 	fmt.Print("Server started")
 
 	// connect to MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://leonvanderhaeghen:EnagMsC8j00X1C8f@productscluster0.uw7owvj.mongodb.net/?retryWrites=true&w=majority"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://leonvanderhaeghen:<password>@productscluster0.uw7owvj.mongodb.net/?retryWrites=true&w=majority"))
 	fmt.Println(" mongodb connection opend")
 	if err != nil {
 		log.Fatal(err)
