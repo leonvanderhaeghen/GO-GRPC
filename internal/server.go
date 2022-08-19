@@ -198,6 +198,35 @@ func (*server) GetProducts(ctx context.Context, req *productProto.GetProductsReq
 	}, nil
 }
 
+
+func (*server) UpdateProduct(ctx context.Context, req *productProto.UpdateProductRequest) (*productProto.UpdateProductResponse, error) {
+	fmt.Println("Update product request")
+	value := req.GetValues()
+
+	data := &Product{}
+	filter := bson.M{"_id": value.Id}
+
+	res := collection.FindOne(ctx, filter)
+	if err := res.Decode(data); err != nil {
+		return nil, status.Errorf(codes.NotFound, "product %v not found (the id should not change)", err.Error())
+	}
+
+	data.Name = value.Name
+	data.Price = value.Price
+	data.Barcode = value.Barcode
+	data.Tags = value.Tags
+
+	_, updateErr := collection.ReplaceOne(ctx, filter, data)
+	if updateErr != nil {
+		return nil, status.Errorf(codes.Internal, "Cannot update object in MongoDB: %v", updateErr)
+	}
+
+	return &productProto.UpdateProductResponse{
+		Values: productToProto(data),
+	}, nil
+}
+
+
 func productToProto(data *Product) *productProto.Product {
 	v := &productProto.Product{
 		Id:      data.Id,
